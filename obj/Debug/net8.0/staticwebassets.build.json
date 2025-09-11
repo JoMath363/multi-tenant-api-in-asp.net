@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "H8HWrvXfi2GcAZteWroz+yaxktOKq7PbWFMFbTrFQp4=",
+  "Source": "Multi-Tenant-API",
+  "BasePath": "_content/Multi-Tenant-API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
