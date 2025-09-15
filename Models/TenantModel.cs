@@ -13,4 +13,5 @@ public class TenantModel
   public required string Name { get; set; }
   public required Plan Plan { get; set; }
   public DateTime CreatedAt { get; set; } = DateTime.Now;
+  public List<AccountModel>? Accounts { get; set; }
 }
