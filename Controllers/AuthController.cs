@@ -1,7 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -14,60 +14,65 @@ public class AuthController : ControllerBase
 {
   private readonly UserManager<AccountModel> _userManager;
   private readonly RoleManager<IdentityRole<Guid>> _roleManager;
-  private readonly IMapper _mapper;
   private readonly IConfiguration _configuration;
 
   public AuthController(
     UserManager<AccountModel> userManager,
-    IMapper mapper,
     RoleManager<IdentityRole<Guid>> roleManager,
     IConfiguration configuration
   )
   {
     _userManager = userManager;
     _roleManager = roleManager;
-    _mapper = mapper;
     _configuration = configuration;
   }
 
+  [Authorize(Roles = "Admin")]
   [HttpPost("register")]
   public async Task<IActionResult> Register([FromBody] RegisterAccountDto dto)
   {
-    var userExists = await _userManager.FindByEmailAsync(dto.Email);
-    if (userExists != null)
+    var accountExists = await _userManager.FindByEmailAsync(dto.Email);
+    if (accountExists != null)
       return BadRequest("User already exists");
 
-    var user = _mapper.Map<AccountModel>(dto);
+    var tenantId = Guid.Parse(User.FindFirst("TenantId")?.Value ?? "");
 
-    var result = await _userManager.CreateAsync(user, dto.Password);
+    var account = new AccountModel
+    {
+      UserName = dto.UserName,
+      Email = dto.Email,
+      TenantId = tenantId
+    };
+
+    var result = await _userManager.CreateAsync(account, dto.Password);
     if (!result.Succeeded)
       return BadRequest(result.Errors);
 
     if (!await _roleManager.RoleExistsAsync("User"))
       await _roleManager.CreateAsync(new IdentityRole<Guid>("User"));
 
-    await _userManager.AddToRoleAsync(user, "User");
+    await _userManager.AddToRoleAsync(account, "User");
 
-    return Ok("User created successfully");
+    return Ok("Account created successfully");
   }
 
   [HttpPost("login")]
   public async Task<IActionResult> Login([FromBody] LoginDto dto)
   {
-    var user = await _userManager.FindByEmailAsync(dto.Email);
-    if (user == null)
+    var account = await _userManager.FindByEmailAsync(dto.Email);
+    if (account == null)
       return Unauthorized("Invalid credentials");
 
-    var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
+    var passwordValid = await _userManager.CheckPasswordAsync(account, dto.Password);
     if (!passwordValid)
       return Unauthorized("Invalid credentials");
 
-    var token = GenerateJwtToken(user);
+    var token = GenerateJwtToken(account);
 
     return Ok(token);
   }
 
-  private async Task<AuthResponseDto> GenerateJwtToken(AccountModel user)
+  private async Task<AuthResponseDto> GenerateJwtToken(AccountModel account)
   {
     var tokenHandler = new JwtSecurityTokenHandler();
     var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured");
@@ -75,12 +80,12 @@ public class AuthController : ControllerBase
 
     var claims = new List<Claim>
     {
-      new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-      new Claim(ClaimTypes.Email, user.Email ?? ""),
-      new Claim("TenantId", user.TenantId.ToString())
+      new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
+      new Claim(ClaimTypes.Email, account.Email ?? ""),
+      new Claim("TenantId", account.TenantId.ToString())
     };
 
-    var roles = await _userManager.GetRolesAsync(user);
+    var roles = await _userManager.GetRolesAsync(account);
     claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
     var tokenDescriptor = new SecurityTokenDescriptor

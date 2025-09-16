@@ -43,8 +43,7 @@ public class TenantController : ControllerBase
       {
         UserName = dto.Account.UserName,
         Email = dto.Account.Email,
-        TenantId = tenant.Id,
-        CreatedAt = DateTime.UtcNow
+        TenantId = tenant.Id
       };
 
       var result = await _userManager.CreateAsync(account, dto.Account.Password);
@@ -75,15 +74,15 @@ public class TenantController : ControllerBase
     }
   }
 
-  [HttpGet("me")]
-  public void GetUserTenant()
-  {
-    // Permission: All
-  }
-
   [HttpPatch("upgrade")]
   public void UpgradeTenantPlan()
   {
     // Permission: Admin
+  }
+
+  [HttpGet]
+  public void ListTenantAccounts()
+  {
+    // Permission: All
   }
 }

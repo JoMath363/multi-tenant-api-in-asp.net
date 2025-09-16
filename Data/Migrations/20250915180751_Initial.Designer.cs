@@ -11,8 +11,8 @@ using Multi_Tenant_API.Data;
 namespace Multi_Tenant_API.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250915175541_Fix_Account")]
-    partial class Fix_Account
+    [Migration("20250915180751_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

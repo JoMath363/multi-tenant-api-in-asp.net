@@ -12,8 +12,6 @@ public class RegisterAccountDto
 
   [Required(ErrorMessage = "Password is required.")]
   public required string Password { get; set; }
-
-  [Required(ErrorMessage = "TenantId is required.")]
   public Guid TenantId { get; set; }
 }
 
