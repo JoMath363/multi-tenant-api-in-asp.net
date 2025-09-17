@@ -1,5 +1,8 @@
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Multi_Tenant_API.Data;
 using Multi_Tenant_API.Dtos;
 using Multi_Tenant_API.Models;
@@ -21,6 +24,23 @@ public class TenantController : ControllerBase
     _context = context;
     _userManager = userManager;
     _roleManager = roleManager;
+  }
+
+  [Authorize]
+  [HttpGet("accounts")]
+  public async Task<IActionResult> ListTenantAccounts()
+  {
+    var tenantId = Guid.Parse(User.FindFirst("TenantId")?.Value ?? "");
+
+    var acounts = await _context.Accounts.Where(a => a.TenantId == tenantId).ToListAsync();
+
+    var mappedAccounts = acounts.Select(a => new
+    {
+      userName = a.UserName,
+      email = a.Email
+    });
+
+    return Ok(mappedAccounts);
   }
 
   [HttpPost("register")]
@@ -53,9 +73,6 @@ public class TenantController : ControllerBase
         return BadRequest(result.Errors);
       }
 
-      if (!await _roleManager.RoleExistsAsync("Admin"))
-        await _roleManager.CreateAsync(new IdentityRole<Guid>("Admin"));
-
       await _userManager.AddToRoleAsync(account, "Admin");
 
       await transaction.CommitAsync();
@@ -74,15 +91,41 @@ public class TenantController : ControllerBase
     }
   }
 
-  [HttpPatch("upgrade")]
-  public void UpgradeTenantPlan()
+  [Authorize(Roles = "Admin")]
+  [HttpPatch("plan/{plan}")]
+  public async Task<IActionResult> UpdateTenantPlan(string plan)
   {
-    // Permission: Admin
+    var tenantId = Guid.Parse(User.FindFirst("TenantId")?.Value ?? "");
+    var tenant = await _context.Tenants
+        .FirstOrDefaultAsync(t => t.Id == tenantId);
+
+    if (tenant == null)
+      return NotFound(new { error = "Tenant not found." });
+
+    var projectsCount = await _context.Projects.CountAsync(p => p.TenantId == tenantId);
+
+    if (!Enum.TryParse<Plan>(plan, ignoreCase: true, out var parsedPlan))
+      return StatusCode(404, new { error = "Invalid plan: insert a valid plan." });
+
+    if ((parsedPlan == Plan.Free && projectsCount > 3) ||
+        (parsedPlan == Plan.Standard && projectsCount > 10))
+    {
+      return StatusCode(403, new
+      {
+        error = "Plan downgrade not allowed: project count exceeds the limits of the selected plan."
+      });
+    }
+
+    tenant.Plan = parsedPlan;
+    await _context.SaveChangesAsync();
+
+    return Ok("Tenant plan updated successfully.");
   }
 
-  [HttpGet]
-  public void ListTenantAccounts()
+  /* [Authorize(Roles = "Admin")]
+  [HttpDelete]
+  public async Task<IActionResult> DeleteTenant(string plan)
   {
-    // Permission: All
-  }
+    
+  } */
 }

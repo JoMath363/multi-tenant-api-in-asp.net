@@ -10,11 +10,9 @@ Each company (tenant) has isolated users, projects, and tasks. Features include 
 - **Authentication**: JWT tokens including tenant context  
 - **Role-based access**: `Admin`, `Manager`, `Member`  
 - **Subscription plans**:
-  - Free → 3 projects, 10 users
-  - Pro → unlimited  
-- **Soft deletion** for safe data handling  
-- **Audit logging** for all changes  
-- **Extendable** to support per-tenant databases, rate limits, and background jobs  
+  - Free → max 3 projects
+  - Standart → max 10 projects
+  - Premium → unlimited projects
 
 ---
 
@@ -28,93 +26,30 @@ Each company (tenant) has isolated users, projects, and tasks. Features include 
 
 ## 🔗 API Endpoints
 
+## 🔗 API Endpoints
+
 ### 🔹 Tenant Management
-- `POST /tenants/register` → register a new tenant  
-- `GET /tenants/me` → get current tenant info  
-- `PATCH /tenants/upgrade` → change subscription plan  
+- `GET /tenants/account` → Retrieve all accounts associated with the tenant.  
+- `POST /tenants/register` → Register a new tenant and automatically create its admin account.  
+- `PATCH /tenants/plan` → Update the tenant's subscription plan.  
+- `DELETE /tenants` → Delete the tenant along with all its accounts, projects, and tasks.  
 
-### 🔹 User Management
-- `POST /users/invite` → invite a new user (tenant-bound)  
-- `GET /users` → list all tenant users  
-- `PATCH /users/{id}/role` → update a user’s role  
+### 🔹 Account Management
+- `GET /accounts/tenant` → Retrieve information about the tenant of the logged-in account.  
+- `POST /accounts/register` → Register a new account within a tenant.  
+- `POST /accounts/login` → Log in and retrieve access credentials for an account.  
+- `PATCH /accounts/{id}/role/{role}` → Change the role of a specific account.  
+- `DELETE /accounts/{id}` → Remove a specific account.  
 
-### 🔹 Projects & Tasks
-- `POST /projects` → create project  
-- `GET /projects` → list tenant projects  
-- `POST /projects/{id}/tasks` → create task in project  
-- `GET /projects/{id}/tasks` → list project tasks  
+### 🔹 Projects and Tasks
+- `GET /projects` → List all projects for the tenant.  
+- `GET /projects/{projectId}` → Retrieve a specific project by its ID.  
+- `POST /projects` → Create a new project.  
+- `PUT /projects/{projectId}` → Update an existing project.  
+- `DELETE /projects/{projectId}` → Delete a project along with all its tasks.  
 
----
-
-## ⚖️ Business Rules
-- **Data isolation** → no cross-tenant access  
-- **Plan restrictions**:
-  - Free → max 3 projects, 10 users  
-  - Pro → unlimited  
-- **Roles**:
-  - `Admin` → full control  
-  - `Manager` → manage projects & tasks  
-  - `Member` → manage own tasks only  
-
----
-
-## 🛠️ Technical Highlights
-- **Global query filters** in EF Core for `TenantId`  
-- **Custom middleware** to resolve tenant from JWT  
-- **Role-based authorization** beyond `[Authorize]`  
-- **Soft delete strategy** (`IsDeleted` flag)  
-- **Audit logs** stored with `UserId`, `Action`, `Timestamp`  
-
----
-
-## 🧩 Bonus Challenges
-- Tenant-based **connection strings** (separate DB per tenant)  
-- **Rate limiting per tenant** (e.g., Free plan = 1000 requests/day)  
-- **Global Admin** role for debugging all tenants  
-- **Background jobs**:
-  - Auto-close overdue tasks  
-  - Send notifications  
-
----
-
-## 🗂️ Database Schema
-
-```mermaid
-erDiagram
-    TENANT ||--o{ USER : has
-    TENANT ||--o{ PROJECT : owns
-    PROJECT ||--o{ TASK : contains
-    USER ||--o{ TASK : assigned
-
-    TENANT {
-        int Id
-        string Name
-        string Plan
-        datetime CreatedAt
-    }
-
-    USER {
-        int Id
-        string Email
-        string PasswordHash
-        string Role
-        int TenantId
-    }
-
-    PROJECT {
-        int Id
-        string Name
-        string Description
-        int TenantId
-    }
-
-    TASK {
-        int Id
-        string Title
-        string Status
-        datetime DueDate
-        int ProjectId
-        int TenantId
-    }
-
-
+- `GET /projects/{projectId}/tasks` → List all tasks within a specific project.  
+- `GET /projects/{projectId}/tasks/{taskId}` → Retrieve a specific task by its ID.  
+- `POST /projects/{projectId}/tasks` → Create a new task under a specific project.  
+- `PUT /projects/{projectId}/tasks/{taskId}` → Update a specific task in a project.  
+- `DELETE /projects/{projectId}/tasks/{taskId}` → Delete a specific task from a project.  

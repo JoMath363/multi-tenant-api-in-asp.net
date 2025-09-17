@@ -3,7 +3,7 @@ namespace Multi_Tenant_API.Models;
 public enum Plan
 {
   Free,
-  Standart,
+  Standard,
   Premium
 }
 

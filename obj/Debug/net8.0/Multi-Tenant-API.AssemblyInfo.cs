@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Multi-Tenant-API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4e3861cc7d7deff7ba79bca9f19708e2be49ead2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+727f5b2117a4f0ad135a81c8ad41d4aa33fe5a8b")]
 [assembly: System.Reflection.AssemblyProductAttribute("Multi-Tenant-API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Multi-Tenant-API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
