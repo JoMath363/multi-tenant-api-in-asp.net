@@ -96,8 +96,7 @@ public class TenantController : ControllerBase
   public async Task<IActionResult> UpdateTenantPlan(string plan)
   {
     var tenantId = Guid.Parse(User.FindFirst("TenantId")?.Value ?? "");
-    var tenant = await _context.Tenants
-        .FirstOrDefaultAsync(t => t.Id == tenantId);
+    var tenant = await _context.Tenants.FirstOrDefaultAsync(t => t.Id == tenantId);
 
     if (tenant == null)
       return NotFound(new { error = "Tenant not found." });

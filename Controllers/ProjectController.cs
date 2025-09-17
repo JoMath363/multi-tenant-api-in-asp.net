@@ -16,9 +16,54 @@ public class ProjectController : ControllerBase
     _context = context;
   }
 
+  [Authorize]
+  [HttpGet]
+  public async Task<IActionResult> GetProjects()
+  {
+    var tenantId = Guid.Parse(User.FindFirst("TenantId")?.Value ?? "");
+
+    var projects = await _context.Projects.Where(p => p.TenantId == tenantId).ToListAsync();
+
+    var mappedProjects = projects.Select(p => new
+    {
+      id = p.Id,
+      name = p.Name,
+      description = p.Description,
+      createdAt = p.CreatedAt
+    });
+
+    return Ok(mappedProjects);
+  }
+
+  [Authorize]
+  [HttpGet("{projectId}")]
+  public async Task<IActionResult> GetProjectById(string projectId)
+  {
+    var tenantId = Guid.Parse(User.FindFirst("TenantId")?.Value ?? "");
+
+    if (!Guid.TryParse(projectId, out Guid projectGuid))
+      return BadRequest(new { error = "Invalid project ID." });
+
+    var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projectGuid);
+
+    if (project == null)
+      return NotFound(new { error = "Project not found." });
+
+    if (project.TenantId != tenantId)
+      return Forbid("This project is not from your tenant.");
+
+    return Ok(new
+    {
+      id = project.Id,
+      name = project.Name,
+      description = project.Description,
+      createdAt = project.CreatedAt
+    });
+  }
+
   [Authorize(Roles = "Admin,Manager")]
   [HttpPost]
-  public async Task<IActionResult> AddNewProject([FromBody] ProjectDto dto)
+  public async Task<IActionResult> AddNewProject([FromBody] RegisterProjectDto dto)
   {
     var tenantId = Guid.Parse(User.FindFirst("TenantId")?.Value ?? "");
     var tenant = await _context.Tenants.FirstOrDefaultAsync(t => t.Id == tenantId);
@@ -57,12 +102,15 @@ public class ProjectController : ControllerBase
   }
 
   [Authorize]
-  [HttpGet("{projectId}")]
-  public async Task<IActionResult> GetProjectById(string projectId)
+  [HttpPut("{projectId}")]
+  public async Task<IActionResult> UpdateProjectById([FromBody] UpdateProjectDto dto, string projectId)
   {
     var tenantId = Guid.Parse(User.FindFirst("TenantId")?.Value ?? "");
 
-    var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == Guid.Parse(projectId));
+    if (!Guid.TryParse(projectId, out Guid projectGuid))
+      return BadRequest(new { error = "Invalid project ID." });
+
+    var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projectGuid);
 
     if (project == null)
       return NotFound(new { error = "Project not found." });
@@ -70,12 +118,11 @@ public class ProjectController : ControllerBase
     if (project.TenantId != tenantId)
       return Forbid("This project is not from your tenant.");
 
-    return Ok(new
-    {
-      id = project.Id,
-      name = project.Name,
-      description = project.Description,
-      createdAt = project.CreatedAt
-    });
+    project.Name = dto.Name ?? project.Name;
+    project.Description = dto.Description ?? project.Description;
+
+    await _context.SaveChangesAsync();
+
+    return Ok("Project upadted successfully");
   }
 }
