@@ -26,8 +26,6 @@ Each company (tenant) has isolated users, projects, and tasks. Features include 
 
 ## 🔗 API Endpoints
 
-## 🔗 API Endpoints
-
 ### 🔹 Tenant Management
 - `GET /tenants/account` → Retrieve all accounts associated with the tenant.  
 - `POST /tenants/register` → Register a new tenant and automatically create its admin account.  
@@ -53,3 +51,4 @@ Each company (tenant) has isolated users, projects, and tasks. Features include 
 - `POST /projects/{projectId}/tasks` → Create a new task under a specific project.  
 - `PUT /projects/{projectId}/tasks/{taskId}` → Update a specific task in a project.  
 - `DELETE /projects/{projectId}/tasks/{taskId}` → Delete a specific task from a project.  
+
