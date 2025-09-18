@@ -43,14 +43,14 @@ Each company (tenant) has isolated users, projects, and tasks. Features include 
 - `GET /projects` → List all projects for the tenant.  
 - `GET /projects/{projectId}` → Retrieve a specific project by its ID.  
 - `POST /projects` → Create a new project.  
-- `PUT /projects/{projectId}` → Update an existing project.  
+- `PATCH /projects/{projectId}` → Update an existing project.  
 - `DELETE /projects/{projectId}` → Delete a project along with all its tasks.  
 
 ### 🔹 Tasks
 - `GET /projects/{projectId}/tasks` → List all tasks within a specific project.  
 - `GET /projects/{projectId}/tasks/{taskId}` → Retrieve a specific task by its ID.  
 - `POST /projects/{projectId}/tasks` → Create a new task under a specific project.  
-- `PUT /projects/{projectId}/tasks/{taskId}` → Update a specific task in a project.  
+- `PATCH /projects/{projectId}/tasks/{taskId}` → Update a specific task in a project.  
 - `DELETE /projects/{projectId}/tasks/{taskId}` → Delete a specific task from a project.  
 
 
