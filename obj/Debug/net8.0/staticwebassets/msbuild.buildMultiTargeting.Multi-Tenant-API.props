@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\Multi-Tenant-API.props" />
-</Project>
