@@ -1,6 +1,8 @@
 bin/
 obj/
 
+Data/AppDb.db
+
 secrets.json
 
 .vscode/
