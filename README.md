@@ -58,20 +58,18 @@ Each company (tenant) has isolated users, projects, and tasks. Features include 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/JoMath363/multi-tenant-api.git
-cd multi-tenant-api
+git clone https://github.com/JoMath363/multi-tenant-api-in-asp.net.git
+cd multi-tenant-api-in-asp.net
 ```
 
 ### 2. Restore Dependencies
 
 ```bash
-Copiar código
 dotnet restore
 ```
 ### 3. Apply Database Migrations
 
 ```bash
-Copiar código
 dotnet ef database update
 ```
 The project uses SQLite by default. You can change the connection string in appsettings.json if needed.
@@ -79,7 +77,6 @@ The project uses SQLite by default. You can change the connection string in apps
 ### 4. Run the API
 
 ```bash
-Copiar código
 dotnet run
 ```
 The API runs on http://localhost:5217 by default.
