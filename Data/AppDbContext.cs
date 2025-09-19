@@ -20,7 +20,20 @@ public class AppDbContext : IdentityDbContext<AccountModel, IdentityRole<Guid>, 
 
         builder.Entity<TenantModel>()
             .HasMany(t => t.Accounts)
-            .WithOne(u => u.Tenant)
-            .HasForeignKey(u => u.TenantId);
+            .WithOne(a => a.Tenant)
+            .HasForeignKey(a => a.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<TenantModel>()
+            .HasMany(t => t.Projects)
+            .WithOne(p => p.Tenant)
+            .HasForeignKey(p => p.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<ProjectModel>()
+            .HasMany(p => p.Tasks)
+            .WithOne(t => t.Project)
+            .HasForeignKey(t => t.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -126,13 +126,29 @@ public class ProjectController : ControllerBase
     return Ok(new { message = "Project upadted successfully" });
   }
 
-  /* [Authorize]
+  [Authorize]
   [HttpDelete("{projectId}")]
   public async Task<IActionResult> DeleteProjectById(string projectId)
   {
+    var tenantId = Guid.Parse(User.FindFirst("TenantId")?.Value ?? "");
 
-    return Ok("Project upadted successfully");
-  } */
+    if (!Guid.TryParse(projectId, out Guid projectGuid))
+      return BadRequest(new { error = "Invalid project ID." });
+
+    var project = await _context.Projects
+    .FirstOrDefaultAsync(p => p.Id == projectGuid);
+
+    if (project == null)
+      return NotFound(new { error = "Project not found." });
+
+    if (project.TenantId != tenantId)
+      return Forbid("This project does not belong to your tenant.");
+
+    _context.Projects.Remove(project);
+    await _context.SaveChangesAsync();
+
+    return Ok(new { message = "Project deleted successfully." });
+  }
 
   [Authorize]
   [HttpGet("{projectId}/tasks")]
@@ -258,7 +274,7 @@ public class ProjectController : ControllerBase
     return Ok(new { message = "Task upadted successfully" });
   }
 
-  [Authorize]
+  [Authorize(Roles = "Admin,Manager")]
   [HttpDelete("{projectId}/tasks/{taskId}")]
   public async Task<IActionResult> DeleteTaskById(string projectId, string taskId)
   {

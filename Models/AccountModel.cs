@@ -12,6 +12,6 @@ public enum Role
 public class AccountModel : IdentityUser<Guid>
 {
   public Guid TenantId { get; set; }
-  public TenantModel Tenant { get; set; } = null!;
+  public TenantModel? Tenant { get; set; }
   public DateTime CreatedAt { get; set; } = DateTime.Now;
 }

@@ -74,7 +74,7 @@ public class AccountController : ControllerBase
 
     await _userManager.AddToRoleAsync(account, "User");
 
-    return Ok("Account created successfully");
+    return Ok(new { message = "Account created successfully" });
   }
 
   [HttpPost("login")]
@@ -94,40 +94,54 @@ public class AccountController : ControllerBase
   }
 
   [Authorize(Roles = "Admin")]
-  [HttpPatch("{accountId}/role/{role}")]
-  public async Task<IActionResult> UpdateAccountRole(string accountId, string role)
+  [HttpPatch("{accountEmail}/role/{role}")]
+  public async Task<IActionResult> UpdateAccountRole(string accountEmail, string role)
   {
     var tenantId = Guid.Parse(User.FindFirst("TenantId")?.Value ?? "");
 
-    var user = await _userManager.FindByIdAsync(accountId);
-    if (user == null)
+    var account = await _userManager.FindByEmailAsync(accountEmail);
+    if (account == null)
       return NotFound(new { message = "User not found." });
 
-    if (user.TenantId != tenantId)
+    if (account.TenantId != tenantId)
       return Forbid();
 
     if (!await _roleManager.RoleExistsAsync(role))
       return BadRequest(new { message = $"Role '{role}' does not exist." });
 
-    var currentRoles = await _userManager.GetRolesAsync(user);
-    var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+    var currentRoles = await _userManager.GetRolesAsync(account);
+    var removeResult = await _userManager.RemoveFromRolesAsync(account, currentRoles);
     if (!removeResult.Succeeded)
       return BadRequest(removeResult.Errors);
 
-    var addResult = await _userManager.AddToRoleAsync(user, role);
+    var addResult = await _userManager.AddToRoleAsync(account, role);
     if (!addResult.Succeeded)
       return BadRequest(addResult.Errors);
 
-    return Ok(new { message = $"User {user.UserName} role updated to {role}." });
+    return Ok(new { message = $"User {account.UserName} role updated to {role}." });
   }
 
-  /* [Authorize(Roles = "Admin")]
-  [HttpDelete("{accountId}")]
-  public void DeleteAccount(string accountId)
+  [Authorize(Roles = "Admin")]
+  [HttpDelete("{accountEmail}")]
+  public async Task<IActionResult> DeleteAccountById(string accountEmail)
   {
-    
-  } */
-  
+    var tenantId = Guid.Parse(User.FindFirst("TenantId")?.Value ?? "");
+
+    var account = await _context.Accounts
+    .FirstOrDefaultAsync(a => a.Email == accountEmail);
+
+    if (account == null)
+      return NotFound(new { error = "Account not found." });
+
+    if (account.TenantId != tenantId)
+      return Forbid("This Account does not belong to your tenant.");
+
+    _context.Accounts.Remove(account);
+    await _context.SaveChangesAsync();
+
+    return Ok(new { message = "Account deleted successfully." });
+  }
+
   private async Task<AuthResponseDto> GenerateJwtToken(AccountModel account)
   {
     var tokenHandler = new JwtSecurityTokenHandler();

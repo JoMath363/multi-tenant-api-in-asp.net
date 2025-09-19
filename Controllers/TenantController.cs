@@ -109,22 +109,30 @@ public class TenantController : ControllerBase
     if ((parsedPlan == Plan.Free && projectsCount > 3) ||
         (parsedPlan == Plan.Standard && projectsCount > 10))
     {
-      return StatusCode(403, new
-      {
-        error = "Plan downgrade not allowed: project count exceeds the limits of the selected plan."
-      });
+      return StatusCode(403, new { error = "Project count exceeds the limits of the selected plan." });
     }
 
     tenant.Plan = parsedPlan;
     await _context.SaveChangesAsync();
 
-    return Ok("Tenant plan updated successfully.");
+    return Ok(new { message = "Tenant plan updated successfully." });
   }
 
-  /* [Authorize(Roles = "Admin")]
+  [Authorize(Roles = "Admin")]
   [HttpDelete]
-  public async Task<IActionResult> DeleteTenant(string plan)
+  public async Task<IActionResult> DeleteTenant()
   {
-    
-  } */
+    var tenantId = Guid.Parse(User.FindFirst("TenantId")?.Value ?? "");
+
+    var tenant = await _context.Tenants
+    .FirstOrDefaultAsync(t => t.Id == tenantId);
+
+    if (tenant == null)
+      return NotFound(new { error = "Tenant not found." });
+
+    _context.Tenants.Remove(tenant);
+    await _context.SaveChangesAsync();
+
+    return Ok(new { message = "Tenant deleted successfully." });
+  }
 }

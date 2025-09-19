@@ -11,7 +11,7 @@ using Multi_Tenant_API.Data;
 namespace Multi_Tenant_API.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250917003411_Initial")]
+    [Migration("20250919032728_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

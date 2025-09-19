@@ -18,4 +18,5 @@ public class TaskModel
   public DateTime? DueDate { get; set; }
   public required Guid TenantId { get; set; }
   public required Guid ProjectId { get; set; }
+  public ProjectModel? Project { get; set; }
 }
