@@ -80,3 +80,9 @@ The project uses SQLite by default. You can change the connection string in apps
 dotnet run
 ```
 The API runs on http://localhost:5217 by default.
+
+### 5. Open Swagger UI
+
+Access the interactive API documentation at:
+http://localhost:5217/swagger/index.html
+
