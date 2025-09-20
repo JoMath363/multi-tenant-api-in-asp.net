@@ -16,14 +16,6 @@ Each company (tenant) has isolated users, projects, and tasks. Features include 
 
 ---
 
-## 📦 Core Entities
-- **Tenant** → represents a company  
-- **User** → belongs to a tenant, has a role  
-- **Project** → scoped to a tenant  
-- **Task** → scoped to a project & tenant  
-
----
-
 ## 🔗 API Endpoints
 
 ### 🔹 Tenant Management
@@ -85,5 +77,6 @@ The API runs on http://localhost:5217 by default.
 
 Access the interactive API documentation at:
 http://localhost:5217/swagger/index.html
+
 
 
