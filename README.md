@@ -1,6 +1,6 @@
 # 🏢 Multi-Tenant API Challenge in ASP.NET  
 
-A **multi-tenant project management API** built with ASP.NET, designed to simulate a **real-world SaaS challenge**.  
+A basic **multi-tenant project management API** built with ASP.NET.  
 Each company (tenant) has isolated users, projects, and tasks. Features include role-based access control, subscription plans, and tenant-aware queries.  
 
 ---
@@ -85,4 +85,5 @@ The API runs on http://localhost:5217 by default.
 
 Access the interactive API documentation at:
 http://localhost:5217/swagger/index.html
+
 
