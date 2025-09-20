@@ -24,21 +24,21 @@ Each company (tenant) has isolated users, projects, and tasks. Features include 
 - `PATCH /tenants/plan` → Update the tenant's subscription plan.  
 - `DELETE /tenants` → Delete the tenant along with all its accounts, projects, and tasks.  
 
-### 🔹 Account Management
+### 🔹 Accounts Management
 - `GET /accounts/tenant` → Retrieve information about the tenant of the logged-in account.  
 - `POST /accounts/register` → Register a new account within a tenant.  
 - `POST /accounts/login` → Log in and retrieve access credentials for an account.  
 - `PATCH /accounts/{id}/role/{role}` → Change the role of a specific account.  
 - `DELETE /accounts/{id}` → Remove a specific account.  
 
-### 🔹 Projects
+### 🔹 Projects Management
 - `GET /projects` → List all projects for the tenant.  
 - `GET /projects/{projectId}` → Retrieve a specific project by its ID.  
 - `POST /projects` → Create a new project.  
 - `PATCH /projects/{projectId}` → Update an existing project.  
 - `DELETE /projects/{projectId}` → Delete a project along with all its tasks.  
 
-### 🔹 Tasks
+### 🔹 Tasks Management
 - `GET /projects/{projectId}/tasks` → List all tasks within a specific project.  
 - `GET /projects/{projectId}/tasks/{taskId}` → Retrieve a specific task by its ID.  
 - `POST /projects/{projectId}/tasks` → Create a new task under a specific project.  
@@ -77,6 +77,7 @@ The API runs on http://localhost:5217 by default.
 
 Access the interactive API documentation at:
 http://localhost:5217/swagger/index.html
+
 
 
 
